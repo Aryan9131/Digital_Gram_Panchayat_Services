@@ -11,6 +11,9 @@ import { CreateService } from './components/CreateService'
 import { UpdateService } from './components/UpdateService'
 import {StaffLayout} from './components/StaffLayout'
 import {StaffPage} from './components/StaffPage'
+import { UserPage } from './components/UserPage'
+import {UserLayout} from './components/UserLayout'
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -32,7 +35,11 @@ function App() {
             <Route path="" element={<StaffPage />} />
             <Route path="service-details/:id" element={<ServiceDetails />} />
           </Route>
-          <Route path="/user" element={<SignUp />} />
+           {/* Staff Routes */}
+           <Route path="/user" element={<UserLayout />}>
+            <Route path="" element={<UserPage />} />
+            <Route path="service-details/:id" element={<ServiceDetails />} />
+          </Route>
         </Routes>
       </Rehydrate>
     </>

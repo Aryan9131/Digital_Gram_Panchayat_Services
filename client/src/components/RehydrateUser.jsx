@@ -50,15 +50,15 @@ const RehydrateUser = ({ children }) => {
           }
         } else {
           console.error("Invalid token.");
-          navigate('/sign-in');
+          navigate('/user');
         }
       } else {
         console.error("Failed to verify token:", response.statusText);
-        navigate("/sign-in");
+        navigate("/user");
       }
     } catch (error) {
       console.error("Error during token verification:", error);
-      navigate("/sign-in");
+      navigate("/user");
     }
   };
   
@@ -66,7 +66,7 @@ const RehydrateUser = ({ children }) => {
     const token = localStorage.getItem("userToken"); // Get token from localStorage
     if (!token) {
       console.log("No token found in localStorage.");
-      navigate("/sign-in");
+      navigate("/user");
       return;
     }else{
       verifyToken(token); // Call on component mount
