@@ -54,8 +54,6 @@ const AllServiceApplication = () => {
 }
 const AllAppliedServiceApplication = () => {
     const { currentServiceAllAplications } = useSelector((state) => state.staff);
-    console.log('All Applied List Called !');
-    console.log('currentServiceAllAplications --> ' + JSON.stringify(currentServiceAllAplications));
     const navigate = useNavigate()
     return (
         <Box sx={{ width: '100%', height: '100%', backgroundColor: 'whitesmoke' }}>
@@ -225,8 +223,6 @@ export const SelectOptions = ({listType,handleChange}) => {
 
         )
     } else if (userDetails?.profile == 'admin') {
-        console.log(' returning admin options !')
-
         return (
             <FormControl sx={{ m: 1, minWidth: 120, }} size="small">
             <InputLabel id="demo-select-small-label">Type</InputLabel>
@@ -250,7 +246,6 @@ export const ServiceApplicationList = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const { userDetails } = useSelector((state) => state.user)
-    console.log("id get in service applications ---> " + id);
     const { currentServiceAllAplications } = useSelector((state) => state.staff)
     useEffect(() => {
         if (id) {
@@ -262,7 +257,6 @@ export const ServiceApplicationList = () => {
     );
 
     const handleChange = (event) => {
-        console.log("Selected value:", event.target.value);
         setListType(event.target.value);
     };
 

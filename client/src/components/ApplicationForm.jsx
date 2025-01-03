@@ -56,7 +56,6 @@ export function ApplicationForm() {
       });
 
       const uploadedFilesData = await Promise.all(uploadPromises);
-      console.log('All files uploaded successfully:', JSON.stringify(uploadedFilesData));
       handleApplicationSubmit(uploadedFilesData);
     } catch (error) {
       console.error('Error uploading files:', error);
@@ -73,7 +72,6 @@ export function ApplicationForm() {
     handleMediaChange(docType, file, handleMediaUrlChange)
   };
   const handleMediaUrlChange = (docType, url) => {
-    console.log("handleMediaUrlChange called -> " + docType + " " + JSON.stringify(url));
     setFileMediaUrlDetails((prev) => ({
       ...prev,
       [docType]: url
@@ -92,7 +90,6 @@ export function ApplicationForm() {
       documents: uploadedFilesData, // Include file details
     };
     dispatch(createNewApplication(ApplictionData, parseInt(currentService.applicants)))
-    console.log('Form Submitted:', ApplictionData);
   }
   
   return (

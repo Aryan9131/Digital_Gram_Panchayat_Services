@@ -69,9 +69,6 @@ export function UpdateService() {
             }
         })
     }
-    React.useEffect(()=>{
-        console.log('service changed ---> '+JSON.stringify(service))
-    },[service])
     const handleChange = (event) => {
         const {
             target: { value },
@@ -90,7 +87,6 @@ export function UpdateService() {
 
     const handleUpdateService = () => {
         dispatch(updateCurrentService({ serviceId: service._id, serviceData: service }))
-        console.log("updated service ---> " + JSON.stringify(service))
         navigate(`/admin/service-details/${service._id}`)
     }
 

@@ -70,7 +70,6 @@ export default function AdminNavbar() {
     const fullPath = location.pathname;
     // Extract only the last part (e.g., create-service)
     const lastSegment = fullPath.split('/').pop();
-    console.log('fullpath --> ' + fullPath + " lastpart --> " + lastSegment);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);

@@ -46,7 +46,6 @@ function getStyles(name, personName, theme) {
 export function CreateService() {
     const {userDetails} =useSelector((state)=>state.user)
     const dispatch=useDispatch()
-    console.log('userDetails --> '+userDetails);
     const navigate = useNavigate();
     const { id } = useParams();
     const theme = useTheme();
@@ -84,7 +83,6 @@ export function CreateService() {
         documents_required:[]
      })
     const handleSubmit=()=>{
-        console.log('documents we get --> '+JSON.stringify(documents));
         dispatch(createService({serviceData :service }))
         navigate('/admin')
     }

@@ -70,7 +70,6 @@ export function ApplicationStatusTracker({status, reason}) {
 
             labelProps.error = true;
           }
-           console.log('status Tracker --> '+label +" errorStep-> "+errorStep)
           return (<Step key={label}>
             <StepLabel {...labelProps} >{label}</StepLabel>
           </Step>)

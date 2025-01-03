@@ -25,9 +25,6 @@ export function ServiceDetails() {
             dispatch(fetchOneService({serviceId:id}))
         }
     },[id])
-    React.useEffect(()=>{
-       console.log('current service changed --> '+ currentService)
-    },[currentService])
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box id='serviceDetailHeader' sx={{ padding: '3px 0px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', width: '96%' }}>

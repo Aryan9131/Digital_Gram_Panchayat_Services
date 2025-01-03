@@ -5,7 +5,6 @@ import { db } from "./firebase";
 export const fetchUserProfile = async (userId) => {
   const userDoc = await getDoc(doc(db, "users", userId));
   if (userDoc.exists()) {
-    console.log("user found in fetchUsserProgile --> " + JSON.stringify(userDoc.data()));
     return { _id: userId, ...userDoc.data() };
   } else {
     throw new Error("User not found in Firestore");
@@ -31,7 +30,6 @@ export const fetchPendingApplications = async () => {
 };
 
 export const updateCurrentApplication = async ({applicationId, status, reason}) => {
-  console.log('updateCurrentApplication called --> '+applicationId+" updates  --> "+status +" "+ reason)
 
   const applicationRef = doc(db, "applications", applicationId);
   await updateDoc(applicationRef, {status : status, reason:reason});
@@ -60,7 +58,6 @@ export const fetchAllAdminServices = async (adminId) => {
       services.push({ _id: doc.id, ...doc.data() }); // Include document ID and data
     });
 
-    console.log("Fetched services:", services);
     return services;
   } catch (error) {
     console.error("Error fetching services:", JSON.stringify(error));
@@ -79,7 +76,6 @@ export const fetchAllServicesByDepartment = async (department) => {
       services.push({ _id: doc.id, ...doc.data() }); // Include document ID and data
     });
 
-    console.log("Fetched services in getAllServicesByDepartment : ", services);
     return services;
   } catch (error) {
     console.error("Error fetching services in getAllServicesByDepartment : ", JSON.stringify(error));
@@ -96,7 +92,6 @@ export const fetchAllServices = async () => {
       services.push({ _id: doc.id, ...doc.data() }); // Include document ID and data
     });
 
-    console.log("Fetched services:", services);
     return services;
   } catch (error) {
     console.error("Error fetching services:", JSON.stringify(error));
@@ -106,8 +101,6 @@ export const fetchAllServices = async () => {
 
 export const fetchService = async (serviceID) => {
   try {
-    console.log("fetchService called with serviceID:", serviceID);
-
     // Reference the specific document by ID
     const serviceRef = doc(db, "services", serviceID);
 
@@ -122,7 +115,6 @@ export const fetchService = async (serviceID) => {
     // Document exists, extract the data
     const service = { _id: docSnapshot.id, ...docSnapshot.data() };
 
-    console.log("Fetched service:", JSON.stringify(service));
     return service;
   } catch (error) {
     console.error("Error fetching service:", error);
@@ -132,11 +124,8 @@ export const fetchService = async (serviceID) => {
 
 export const createNewService = async (serviceData) => {
   try {
-    console.log('createNewService firestore called --> ', serviceData);
     const serviceRef = collection(db, "services"); // Ensure 'db' is correctly initialized
-    console.log('serviceRef initialized --> ', serviceRef);
     const newService = await addDoc(serviceRef, serviceData);
-    console.log('Document created successfully: ', newService);
     return { _id: newService.id, ...serviceData };
   } catch (error) {
     console.error('Error creating new service: ', error); // Log Firestore errors
@@ -147,12 +136,9 @@ export const createNewService = async (serviceData) => {
 export const updateService = async (serviceId, updates) => {
   try {
     // Reference the specific document by its ID
-    console.log("Service data got to update -----> " + JSON.stringify({ serviceId: serviceId, updates: updates }))
     const serviceDocRef = doc(db, "services", serviceId);
-
     // Update the document with the provided updates object
     await updateDoc(serviceDocRef, updates);
-    console.log('Service updated successfully');
   } catch (error) {
     console.error('Error updating service: ', error); // Log Firestore errors
     throw error;
@@ -161,10 +147,8 @@ export const updateService = async (serviceId, updates) => {
 
 export const createApplication = async (applicationData, applicants) => {
   try {
-    console.log("**** "+ applicants +' - createApplication firestore called --> ', JSON.stringify(applicationData));
     const applicationRef = collection(db, "applications"); // Ensure 'db' is correctly initialized
     const newApplication = await addDoc(applicationRef, applicationData);
-    console.log('Document created successfully: ', JSON.stringify(newApplication));
     //update service applicants number 
     const serviceDocRef = doc(db, "services", applicationData.serviceId);
     await updateDoc(serviceDocRef, { applicants: applicants+1 });
@@ -177,8 +161,6 @@ export const createApplication = async (applicationData, applicants) => {
 
 export const fetchApplication = async (applicationId) => {
   try {
-    console.log("fetchApplication called with applicationId:", applicationId);
-
     // Reference the specific document by ID
     const applicationRef = doc(db, "applications", applicationId);
 
@@ -201,19 +183,15 @@ export const fetchApplication = async (applicationId) => {
 
 export const fetchAllServiceApplications = async (serviceId)=>{
   try {
-    console.log("fetchAllServiceApplications called ---> "+serviceId)
     const applicationRef = collection(db, "applications");
     const q = query(applicationRef, where("serviceId", "==", serviceId)); // Filter by adminId
     const applicationDoc = await getDocs(q);
  
-    console.log('applications get --> '+JSON.stringify(applicationDoc));
-
     const applications = [];
     applicationDoc.forEach((doc) => {
       applications.push({ _id: doc.id, ...doc.data() }); // Include document ID and data
     });
 
-    console.log("Fetched services in fetchAllServiceApplications : ", applications);
     return applications;
     
   } catch (error) {
@@ -224,7 +202,6 @@ export const fetchAllServiceApplications = async (serviceId)=>{
 
 export const fetchUserApplications = async (userId)=>{
   try {
-    console.log("fetchUserApplicatons called ---> "+userId)
     const applicationRef = collection(db, "applications");
     const q = query(applicationRef, where("userId", "==", userId)); // Filter by adminId
     const applicationDoc = await getDocs(q);
@@ -234,7 +211,6 @@ export const fetchUserApplications = async (userId)=>{
       applications.push({ _id: doc.id, ...doc.data() }); // Include document ID and data
     });
 
-    console.log("Fetched services in fetchUserApplicatons : ", applications);
     return applications;
     
   } catch (error) {
@@ -251,12 +227,9 @@ export const createStaffAccount = async (staffData) => {
 
 export async function deleteServiceAndUpdateApplications(serviceId) {
     try {
-      console.log(`deleteServiceAndUpdateApplications with ID: ${serviceId} called.`);
         // Delete the service from the services collection
         const serviceRef = doc(db, 'services', serviceId);
         await deleteDoc(serviceRef);
-
-        console.log(`Service with ID: ${serviceId} deleted successfully.`);
 
         // Query applications with serviceId == serviceId
         const applicationsRef = collection(db, 'applications');
@@ -279,7 +252,6 @@ export async function deleteServiceAndUpdateApplications(serviceId) {
         // Wait for all updates to complete
         await Promise.all(updatePromises);
 
-        console.log(`All related applications updated successfully.`);
     } catch (error) {
         console.error('Error deleting service or updating applications:', error);
         throw new Error('Failed to delete service and update applications.');

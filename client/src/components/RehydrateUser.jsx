@@ -30,7 +30,6 @@ const RehydrateUser = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         if (data) {
-          console.log("Rehydrated userDetails:", data);
            dispatch(setUser({
              _id:data.user._id,
              name:data.user.name,
@@ -55,18 +54,15 @@ const RehydrateUser = ({ children }) => {
         } else {
           console.error("Invalid token.");
           localStorage.removeItem('userToken');
-          alert('redirecting to /user by : rehydrate else invalid token')
           navigate('/user');
         }
       } else {
         localStorage.removeItem('userToken');
         console.error("Failed to verify token:", response.statusText);
-        alert('redirecting to /user by : rehydrate Failed to verify token')
         navigate("/user");
       }
     } catch (error) {
       console.error("Error during token verification:", error);
-      alert('redirecting to /user by : rehydrate Error during token verification')
       navigate("/user");
     }
   };

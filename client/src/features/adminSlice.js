@@ -9,7 +9,6 @@ const initialState = {
 
 // Async thunk for fetching all users
 export const getAllAdminServices = createAsyncThunk(`admin/getAllAdminServices`, async (adminId) => {
-  console.log('getServices called --> '+adminId)
   const services = await fetchAllAdminServices(adminId); // Fetch all users from Firestore
   return services;
 });
@@ -21,20 +20,16 @@ export const createStaff = createAsyncThunk("admin/createStaff", async (staffDat
 });
 
 export const createService = createAsyncThunk('admin/create-service', async ({serviceData})=>{
-   console.log('createService thunk called --> '+JSON.stringify(serviceData))
    const service = await createNewService(serviceData);
    return service;
 })
 export const updateCurrentService= createAsyncThunk('admin/update-service', async ({serviceId, serviceData})=>{
-  console.log('updateCurrentService thunk called --> '+JSON.stringify(serviceData))
   await updateService(serviceId, serviceData);
   return {_id : serviceId, data : serviceData};
 })
 
 export const deleteService = createAsyncThunk('admin/delete-service', async ({serviceId})=>{
-  console.log("deleteService called --> "+serviceId)
    await deleteServiceAndUpdateApplications(serviceId);
-   console.log('Service and related applications processed successfully.');
    return;
 })
 
@@ -48,7 +43,6 @@ const adminSlice = createSlice({
         state.status = "loading";
       })
       .addCase(getAllAdminServices.fulfilled, (state, action) => {
-        console.log('getAllAdminServices fulfilled --> '+ JSON.stringify(action.payload))
         state.status = "succeeded";
         state.services = action.payload;
       })
@@ -63,7 +57,6 @@ const adminSlice = createSlice({
          console.log("service created !")
       })
       .addCase(updateCurrentService.fulfilled, (state, action) => {
-        console.log("update service fullflled -----> "+JSON.stringify(action.payload)); // Add the new service to the list
         state.services = state.services.map((service)=>{
             if(service._id==action.payload._id){
               return action.payload.data;

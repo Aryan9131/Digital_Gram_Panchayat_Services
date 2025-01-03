@@ -20,14 +20,12 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async (userId) => {
 });
 // Async thunk for fetching all users
 export const getAllServices = createAsyncThunk(`admin/getAllServices`, async () => {
-  console.log('*** getAllServices called ! ')
   const services = await fetchAllServices(); // Fetch all users from Firestore
   return services;
 });
 
 // Create Application
 export const createNewApplication = createAsyncThunk("user/createNewApplication", async (applicationData, applicants) => {
-  console.log( JSON.stringify(applicants)+ "createNewApplication is called : "+JSON.stringify(applicationData));
   const application = await createApplication(applicationData, applicants); // Fetch data from Firestore
   return application;
 });
@@ -45,20 +43,15 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      console.log('setUser called --> ' + JSON.stringify(action.payload));
       state.userDetails = action.payload;
     },
     clearUser: (state) => {
-      console.log(' clear user ruiing !')
       state.userDetails = null;
     },
     setCurrentApplication :(state, action)=>{
-      console.log('setCurrentApplication called --> ' + JSON.stringify(action.payload));
       state.currentApplication=action.payload
     },
     setSearchQuery: (state, action) => {
-      console.log("set Search Query called !");
-      console.log("set Search Query called with --->"+action.payload);
       state.searchQuery = action.payload;
     }
   },

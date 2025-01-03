@@ -8,7 +8,6 @@ export const UserApplications = () => {
     const navigate=useNavigate();
     const { userApplications } = useSelector((state) => state.user)
     const dispatch = useDispatch();
-    console.log("id in UserApplications --> " + id);
     useEffect(() => {
         dispatch(getUserApplications(id));
     }, [id])

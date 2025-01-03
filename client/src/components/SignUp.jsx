@@ -32,7 +32,6 @@ export default function SignUp() {
     }
 
     try {
-      console.log("signUp user -----> "+JSON.stringify(formData))
       dispatch(registerUser({ email: email, password: password, userData: formData }));
       alert("SignUp successful!");
       navigate("/sign-in"); // Redirect to SignIn page

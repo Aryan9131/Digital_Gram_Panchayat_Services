@@ -23,7 +23,6 @@ const ShowButtons =({userProfile})=>{
             status: 'StaffRejected',
             reason: 'failed'
         }))
-        console.log('calling updateApplication -->' + JSON.stringify({ status: 'StaffRejected', reason: 'Failed' }))
         dispatch(updateApplication({ applicationId: currentApplication._id, status: 'StaffRejected', reason: 'Failed' }))
     }
     const handleAdminApproveApplication = () => {
@@ -39,7 +38,6 @@ const ShowButtons =({userProfile})=>{
             status: 'AdminRejected',
             reason: 'Not Qualified'
         }))
-        console.log('calling updateApplication -->' + JSON.stringify({ status: 'AdminRejected', reason: 'Not Qualified' }))
         dispatch(updateApplication({ applicationId: currentApplication._id, status: 'AdminRejected', reason: 'Not Qualified' }))
     }
    if((currentApplication?.status=="Documents Verification" && userProfile=='staff') || currentApplication?.status=="Approved"){
@@ -72,7 +70,6 @@ export const ApplicationDetail = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         if (id) {
-            console.log("*****get application called !")
             dispatch(getApplication(id));
         }
     }, [id])
@@ -109,8 +106,6 @@ export const ApplicationDetail = () => {
                                     ? currentApplication?.documents.map((docObj, index) => {
                                         // Get the key-value pairs of the object
                                         const entries = Object.entries(docObj);
-                                        console.log('documents entrie : ' + JSON.stringify(entries));
-                                        console.log('documents docObj : ' + JSON.stringify(docObj));
 
                                         // Iterate over each key-value pair
                                         return entries.map(([key, value]) => (

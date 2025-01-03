@@ -19,13 +19,10 @@ export default function SignIn() {
     }
     React.useEffect(()=>{
         if(userDetails && userDetails.profile =='admin'){
-            console.log('user profile is admin ----> '+userDetails.profile);
             navigate('/admin')
         }else if(userDetails && userDetails.profile =='staff'){
-            console.log('user profile is staff ----> '+userDetails.profile);
             navigate('/staff')
         }else if(userDetails && userDetails.profile =='user'){
-            console.log('user profile is user ----> '+userDetails.profile);
             navigate('/user')
         }
     },[userDetails])

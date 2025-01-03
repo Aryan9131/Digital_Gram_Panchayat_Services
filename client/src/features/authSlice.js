@@ -37,7 +37,6 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async (_, { dispat
   await logOut();
   localStorage.removeItem('userToken');
   dispatch(clearUser()); // Clear userSlice state
-  console.log(' running reload !')
   window.location.reload()
 });
 
@@ -47,7 +46,6 @@ const authSlice = createSlice({
   reducers: {
     setUserAuth:(state, action)=>{
       const {token, userId} =action.payload;
-      console.log('setUserAuth called --> '+JSON.stringify(action.payload));
       state.token=token;
       state.userId=userId;
     }
