@@ -32,7 +32,6 @@ import { logoutUser } from '../features/authSlice';
 import HomeIcon from '@mui/icons-material/Home';
 import HelpIcon from '@mui/icons-material/Help';
 import { MobileAccordion } from './Accordion';
-import PrimarySearchAppBar from './temproryNavbar';
 import { setSearchQuery } from '../features/userSlice';
 import LoginIcon from '@mui/icons-material/Login';
 
