@@ -19,7 +19,7 @@ const RehydrateUser = ({ children }) => {
 
   const verifyToken = async (token) => {
     try {
-      const response = await fetch("http://localhost:8000/verifyToken", {
+      const response = await fetch("https://digital-gram-panchayat-services.vercel.app/verifyToken", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
