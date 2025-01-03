@@ -18,7 +18,7 @@ import MoreIcon from '@mui/icons-material/MoreVert';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import AddIcon from '@mui/icons-material/Add';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import { Button, Divider } from '@mui/material';
@@ -27,6 +27,14 @@ import LanguageIcon from '@mui/icons-material/Language';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { NavbarSpeedDial } from './NavbarSpeedDial';
+import { logoutUser } from '../features/authSlice';
+import HomeIcon from '@mui/icons-material/Home';
+import HelpIcon from '@mui/icons-material/Help';
+import { MobileAccordion } from './Accordion';
+import PrimarySearchAppBar from './temproryNavbar';
+import { setSearchQuery } from '../features/userSlice';
+import LoginIcon from '@mui/icons-material/Login';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -68,37 +76,97 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export function UserNavbar() {
+export function Navbar({ title, options }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchValue, setSearchValue] = React.useState("");
     const { userDetails } = useSelector((state) => state.user)
-    // Get the full pathname (e.g., /admin/create-service)
     const fullPath = location.pathname;
-    // Extract only the last part (e.g., create-service)
     const lastSegment = fullPath.split('/').pop();
-    console.log('fullpath --> ' + fullPath + " lastpart --> " + lastSegment);
-
+    const dispatch = useDispatch();
+    const staffNavbarServiceOptions = [
+        {
+            title: 'Previous',
+            url: '/services/previous-services'
+        },
+        {
+            title: 'Deleted',
+            url: '/services/deleted-services'
+        }
+    ]
+    const userNavbarServiceOptions = [
+        {
+            title: 'Medial',
+            url: '/user/services/medical'
+        },
+        {
+            title: 'Health',
+            url: '/user/services/health'
+        }
+    ]
+    const CompanyNavbarServiceOptions = [
+        {
+            title: 'About',
+            url: ''
+        }
+    ]
+    const HelpNavbarServiceOptions = [
+        {
+            title: 'Contact',
+            url: ''
+        },
+        {
+            title: 'Staff',
+            url: ''
+        }
+    ]
+    const handleLogOut = () => {
+        dispatch(logoutUser());
+        navigate('/user')
+    }
+    const handleHomeClick = () => {
+        if (!userDetails || userDetails?.profile == 'user') {
+            navigate('/user')
+        } else if (userDetails?.profile == 'staff') {
+            navigate('/staff')
+        } else {
+            navigate('/admin')
+        }
+    }
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [moreAnchorEl, setMoreAnchorEl] = React.useState(null);
+    const [mobileAnchorEl, setMobileAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
     const isMenuOpen = Boolean(anchorEl);
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
+    const isMobileMenuOpen = Boolean(mobileAnchorEl);
+    const isMobileMoreMenuOpen = Boolean(mobileMoreAnchorEl);
+    const [showSearchBar, setShowSearchBar] = React.useState(false);
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
 
     const handleMobileMenuClose = () => {
+        setMobileAnchorEl(null);
+    };
+    const handleMobileMoreMenuClose = () => {
         setMobileMoreAnchorEl(null);
     };
 
+    const handleMoreMenuClose = () => {
+        setMoreAnchorEl(null);
+        handleMobileMoreMenuClose();
+    };
     const handleMenuClose = () => {
         setAnchorEl(null);
         handleMobileMenuClose();
     };
 
-    const handleMobileMenuOpen = (event) => {
+    const handleMobileMoreMenuOpen = (event) => {
         setMobileMoreAnchorEl(event.currentTarget);
+    };
+    const handleMobileMenuOpen = (event) => {
+        setMobileAnchorEl(event.currentTarget);
     };
 
     const menuId = 'primary-search-account-menu';
@@ -119,14 +187,21 @@ export function UserNavbar() {
             onClose={handleMenuClose}
         >
             <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+            {
+                !userDetails || userDetails?.profile == 'user'
+                    ?
+                    <MenuItem onClick={() => { navigate(`/user/${userDetails?._id}/applications`) }}>My Applications</MenuItem>
+                    :
+                    null
+            }
+            <MenuItem sx={{ display: { xs: 'none', md: 'flex' } }} onClick={handleLogOut}>LogOut</MenuItem>
         </Menu>
     );
 
     const mobileMenuId = 'primary-search-account-menu-mobile';
     const renderMobileMenu = (
         <Menu
-            anchorEl={mobileMoreAnchorEl}
+            anchorEl={mobileAnchorEl}
             anchorOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
@@ -140,50 +215,109 @@ export function UserNavbar() {
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem>
+            <MenuItem onClick={handleHomeClick}>
                 <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                    <Badge badgeContent={4} color="error">
-                        <HistoryToggleOffIcon />
-                    </Badge>
+                    <HomeIcon />
                 </IconButton>
-                <p>Previous</p>
+                <p>Home</p>
             </MenuItem>
-            <MenuItem>
-                <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                    <Badge badgeContent={4} color="error">
-                        <LocalLibraryIcon />
-                    </Badge>
-                </IconButton>
-                <p>All Applications</p>
-            </MenuItem>
+            {
+                userDetails ?
+                    <>
+                        <MenuItem>
+                            <IconButton
+                                size="large"
+                                aria-label="show 17 new notifications"
+                                color="inherit"
+                            >
+                                <Badge badgeContent={17} color="error">
+                                    <NotificationsIcon />
+                                </Badge>
+                            </IconButton>
+                            <p>Notifications</p>
+                        </MenuItem>
+                        <MenuItem onClick={handleProfileMenuOpen}>
+                            <IconButton
+                                size="large"
+                                aria-label="account of current user"
+                                aria-controls="primary-search-account-menu"
+                                aria-haspopup="true"
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                            <p>Profile</p>
+                        </MenuItem>
+                        <MenuItem onClick={handleProfileMenuOpen}>
+                            <IconButton
+                                size="large"
+                                aria-label="account of current user"
+                                aria-controls="primary-search-account-menu"
+                                aria-haspopup="true"
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                            <p onClick={handleLogOut}>LogOut</p>
+                        </MenuItem>
+                    </>
+                    :
+                    <MenuItem onClick={()=>navigate('/sign-in')}>
+                        <IconButton
+                            size="large"
+                            aria-label="account of current user"
+                            aria-controls="primary-search-account-menu"
+                            aria-haspopup="true"
+                            color="inherit"
+                        >
+                            <LoginIcon />
+                        </IconButton>
+                        <p onClick={handleLogOut}>LogIn</p>
+                    </MenuItem>
+            }
+
+        </Menu>
+    );
+
+    const mobileMoreMenuId = 'primary-search-more-account-menu-mobile';
+    const renderMobileMenuSubNavOptions = (
+        <Menu
+            anchorEl={mobileMoreAnchorEl}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            id={mobileMenuId}
+            keepMounted
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            open={isMobileMoreMenuOpen}
+            onClose={handleMobileMoreMenuClose}
+        >
+
             <MenuItem>
                 <IconButton
                     size="large"
                     aria-label="show 17 new notifications"
                     color="inherit"
                 >
-                    <Badge badgeContent={17} color="error">
-                        <NotificationsIcon />
-                    </Badge>
+                    <HelpIcon />
                 </IconButton>
-                <p>Notifications</p>
+                <p>Help</p>
             </MenuItem>
-            <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                    size="large"
-                    aria-label="account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    color="inherit"
-                >
-                    <AccountCircle />
-                </IconButton>
-                <p>Profile</p>
+            <MenuItem >
+                <MobileAccordion />
             </MenuItem>
         </Menu>
-    );
+    )
     const [showSpeedDial, setShowSpeedDial] = React.useState(false);
-    const [profile, setProfile] = React.useState('admin')
+    const handleCloseSearchBar = () => {
+        setShowSearchBar((prev) => !prev);
+        dispatch(setSearchQuery(""));
+        setSearchValue("")
+    }
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" sx={{ backgroundColor: 'whitesmoke' }}>
@@ -228,14 +362,14 @@ export function UserNavbar() {
                         variant="h6"
                         noWrap
                         component="div"
-                        sx={{ color: 'black',fontWeight:'600', display: { xs: 'none', sm: 'block' } }}
+                        sx={{ color: 'black', fontWeight: '600', display: { xs: 'none', sm: 'block' } }}
                     >
                         Digital_Gram_Panchayat_Services
                     </Typography>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ color: 'grey', fontWeight: '600', width: { md: '40%' }, display: { xs: 'none', md: 'flex' }, justifyContent: 'space-evenly', alignItems: 'center' }}>
-                        <Box id="speedDial" onClick={() => setShowSpeedDial((state) => !state)} sx={{ border: showSpeedDial ? '1px solid blue' : 'none', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <Typography id='speedDialText' variant='span'
+                        <Box id="callSpeedDial" onClick={() => setShowSpeedDial((state) => !state)} sx={{ border: showSpeedDial ? '1px solid blue' : 'none', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography id='callSpeedDialText' variant='span'
                                 sx={{
                                     padding: '10px 0px', display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '13px'
                                 }}>
@@ -248,7 +382,7 @@ export function UserNavbar() {
                                 sx={{
                                     visibility: showSpeedDial ? 'visible' : 'hidden', marginTop: '7px', borderRadius: '7px',
                                     border: '1px solid grey', backgroundColor: 'whitesmoke', boxShadow: '1px 1px 25px grey',
-                                    position: 'absolute', top: '100%', width: '35vw', height: '30vh', padding: '10px'
+                                    position: 'absolute', top: '100%', width: '35vw', height: '30vh', padding: '10px', zIndex: 100
                                 }}>
                                 <ArrowDropUpIcon sx={{ width: '40px', height: '40px', position: 'absolute', top: '-23px', color: 'whitesmoke', right: '50%' }} />
                                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, praesentium amet quas neque blanditiis sunt repudiandae? Impedit temporibus et aspernatur.
@@ -261,7 +395,7 @@ export function UserNavbar() {
                         </Typography>
                         <Divider orientation="vertical" flexItem sx={{ borderWidth: '1px' }} />
                         {
-                            userDetails
+                            userDetails && userDetails.profile != 'guest'
                                 ?
                                 <>
                                     <IconButton
@@ -309,36 +443,66 @@ export function UserNavbar() {
                             aria-controls={mobileMenuId}
                             aria-haspopup="true"
                             onClick={handleMobileMenuOpen}
-                            color="inherit"
+                            color="black"
                         >
-                            <MoreIcon />
+                            <MenuIcon />
                         </IconButton>
                     </Box>
                 </Toolbar>
             </AppBar>
-            <Box sx={{ backgroundColor: '#29388c', display: 'flex', alignItems: 'center', width: '100%', fontSize:'15px', fontWeight:'600', color:'whitesmoke' }}>
-                <Box sx={{ width:'60%',display: 'flex', justifyContent: 'space-evenly', alignItems: 'center'}}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', padding: '10px 20px' }}>
+            <Box sx={{ backgroundColor: '#29388c', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '15px', fontWeight: '600', color: 'whitesmoke' }}>
+                <Box sx={{ padding: '5px 0px', width: '60%', display: { xs: 'none', md: 'flex' }, justifyContent: 'space-evenly', alignItems: 'center' }}>
+                    <Box onClick={handleHomeClick} sx={{ display: 'flex', alignItems: 'center', padding: '10px 20px', '&:hover': { cursor: 'pointer' } }}>
                         <Typography variant='span'>Home</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', padding: '10px 20px' }}>
-                        <Typography variant='span'>Services</Typography>
-                        <KeyboardArrowDownIcon/>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', padding: '10px 20px' }}>
-                        <Typography variant='span'>Company</Typography>
-                        <KeyboardArrowDownIcon/>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', padding: '10px 20px' }}>
-                        <Typography variant='span'>Help</Typography>
-                        <KeyboardArrowDownIcon/>
-                    </Box>
+                    {
+                        userDetails?.profile == 'staff'
+                            ?
+                            <NavbarSpeedDial title={'Services'} options={staffNavbarServiceOptions} />
+                            :
+                            <NavbarSpeedDial title={"services"} options={userNavbarServiceOptions} />
+                    }
+                    <NavbarSpeedDial title={"Company"} options={CompanyNavbarServiceOptions} />
+                    <NavbarSpeedDial title={"Help"} options={HelpNavbarServiceOptions} />
                 </Box>
-                <Box sx={{width:'40%',display: 'flex', justifyContent:'center'}}>
-                     <Box sx={{backgroundColor:'#066acf', padding:'5px 10px', borderRadius:'5px'}}>
-                        <SearchIcon/>
-                     </Box>
+                <Box sx={{ width: { xs: '80%', md: '40%' }, display: 'flex', justifyContent: { xs: 'flex-start', md: 'center' } }}>
+                    <Box onClick={() => setShowSearchBar((prev) => !prev)}
+                        sx={{ display: showSearchBar ? "none" : 'flex', backgroundColor: '#066acf', margin: { xs: '0px 10px', md: '0px' }, padding: '5px 10px', borderRadius: '5px' }}>
+                        <SearchIcon />
+                    </Box>
+                    <Search sx={{ display: showSearchBar ? "flex" : 'none', marginRight: '0', borderTopRightRadius: '0', borderBottomRightRadius: '0' }}>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                            placeholder="Search…"
+                            value={searchValue} // Controlled component
+                            inputProps={{ 'aria-label': 'search' }}
+                            onChange={(event) => { dispatch(setSearchQuery(event.target.value)), setSearchValue(event.target.value) }}
+                        />
+                    </Search>
+                    <Typography variant='span'
+                        onClick={handleCloseSearchBar}
+                        sx={{
+                            '&:hover': { cursor: 'pointer' },
+                            backgroundColor: '#d1cbcb36', borderLeft: '1px solid grey', borderTopRightRadius: '5px', borderBottomRightRadius: '5px',
+                            padding: '0px 8px', display: showSearchBar ? "flex" : 'none', alignItems: 'center'
+                        }}>
+                        X
+                    </Typography>
                 </Box>
+                <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+                    <IconButton
+                        size="large"
+                        aria-label="show more"
+                        aria-controls={mobileMoreMenuId}
+                        aria-haspopup="true"
+                        onClick={handleMobileMoreMenuOpen}
+                    >
+                        <MoreIcon sx={{ color: 'whitesmoke' }} />
+                    </IconButton>
+                </Box>
+                {renderMobileMenuSubNavOptions}
             </Box>
             {renderMobileMenu}
             {renderMenu}

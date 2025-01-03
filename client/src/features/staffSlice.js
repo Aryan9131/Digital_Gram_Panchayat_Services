@@ -1,13 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchPendingApplications, approveApplication ,fetchAllServicesByDepartment, fetchService } from "../services/fireStore";
+import { fetchPendingApplications ,fetchAllServicesByDepartment, fetchService, fetchAllServiceApplications, updateCurrentApplication } from "../services/fireStore";
 
 const initialState = {
   services:[],
   pendingApplications: [],
+  currentService:null,
+  currentServiceAllAplications : [],
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
-export const getAllServicesByDepartment = createAsyncThunk(`staff/getAllServices`, async (department) => {
+export const getAllServicesByDepartment = createAsyncThunk(`staff/getAllServicesByDepartment`, async (department) => {
   console.log('getAllServicesByDepartment called --> '+department)
   const services = await fetchAllServicesByDepartment(department); // Fetch all users from Firestore
   return services;
@@ -15,48 +17,54 @@ export const getAllServicesByDepartment = createAsyncThunk(`staff/getAllServices
 export const fetchOneService= createAsyncThunk('staff/fetch-service', async ({serviceId})=>{
   console.log('fetchOneService thunk called --> '+JSON.stringify(serviceId))
    const service  = await fetchService(serviceId);
+   console.log('service get form firestore ---> '+JSON.stringify(service))
   return service;
 })
 
-// Async thunk for fetching pending applications
-export const getPendingApplications = createAsyncThunk("staff/getPendingApplications", async () => {
-  const applications = await fetchPendingApplications(); // Fetch pending applications from Firestore
+// Async thunk for approving an application
+export const updateApplication = createAsyncThunk("staff/updateApplication", async ({applicationId, status, reason}) => {
+  console.log('updateApplication called --> '+applicationId+" updates  --> "+status +" "+reason)
+  await updateCurrentApplication({applicationId, status, reason}); // Approve the application in Firestore
+  return {_id:applicationId, updates:updates}; // Return approved application ID
+});
+export const getServiceApplications = createAsyncThunk("staff/getServiceApplications", async (serviceId) => {
+   console.log("getServiceApplications called --> "+serviceId);
+  const applications = await fetchAllServiceApplications(serviceId); // Fetch pending applications from Firestore
   return applications;
 });
-
-// Async thunk for approving an application
-export const approveApp = createAsyncThunk("staff/approveApp", async (applicationId) => {
-  await approveApplication(applicationId); // Approve the application in Firestore
-  return applicationId; // Return approved application ID
-});
-
 const staffSlice = createSlice({
   name: "staff",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getPendingApplications.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(getPendingApplications.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.pendingApplications = action.payload;
-      })
-      .addCase(getPendingApplications.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
-      })
-      .addCase(approveApp.fulfilled, (state, action) => {
-        state.pendingApplications = state.pendingApplications.filter(
-          (app) => app.id !== action.payload
+      .addCase(updateApplication.fulfilled, (state, action) => {
+        state.currentServiceAllAplications = state.currentServiceAllAplications.map(
+           (app)=>{
+                 if(app._id==action.payload._id){
+                   app.status=action.payload.updates.status,
+                   app.reason=action.payload.updates.reason
+                 }else{
+                  return app;
+                 }
+           }
         ); // Remove approved application
       })
        .addCase(getAllServicesByDepartment.fulfilled, (state, action) => {
         console.log('getAllServicesByDepartment fulfilled --> '+ JSON.stringify(action.payload))
         state.status = "succeeded";
         state.services = action.payload;
-        });
+        })
+        .addCase(getServiceApplications.fulfilled, (state, action) => {
+            console.log('getAllServicesByDepartment fulfilled --> '+ JSON.stringify(action.payload))
+            state.status = "succeeded";
+            state.currentServiceAllAplications = action.payload;
+          })
+          .addCase(fetchOneService.fulfilled, (state, action) => {
+            console.log('fetchOneService fulfilled --> '+ JSON.stringify(action.payload))
+            state.status = "succeeded";
+            state.currentService = action.payload;
+          })
   },
 });
 

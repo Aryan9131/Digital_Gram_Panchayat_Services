@@ -7,8 +7,9 @@ import { setUser } from "../features/userSlice"; // Redux action to set userDeta
 import { getAuth } from "firebase/auth";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../services/firebase";
-import { getAllServices } from "../features/adminSlice";
+import { getAllAdminServices } from "../features/adminSlice";
 import {getAllServicesByDepartment} from '../features/staffSlice'
+import { getAllServices } from "../features/userSlice";
 
 const RehydrateUser = ({ children }) => {
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ const RehydrateUser = ({ children }) => {
 
   const verifyToken = async (token) => {
     try {
-      const response = await fetch("https://organic-space-parakeet-46p9wpp4wj6hj756-8000.app.github.dev/verifyToken", {
+      const response = await fetch("http://localhost:8000/verifyToken", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,20 +45,28 @@ const RehydrateUser = ({ children }) => {
             token:token
           }))
           if(data.user.profile=='admin'){
-            dispatch(getAllServices(data.user._id))
+            dispatch(getAllAdminServices(data.user._id))
           }else if(data.user.profile=='staff'){
             dispatch(getAllServicesByDepartment(data.user.department))
+          }else if(data.user.profile=='user'){
+            dispatch(getAllServices());
           }
+          return;
         } else {
           console.error("Invalid token.");
+          localStorage.removeItem('userToken');
+          alert('redirecting to /user by : rehydrate else invalid token')
           navigate('/user');
         }
       } else {
+        localStorage.removeItem('userToken');
         console.error("Failed to verify token:", response.statusText);
+        alert('redirecting to /user by : rehydrate Failed to verify token')
         navigate("/user");
       }
     } catch (error) {
       console.error("Error during token verification:", error);
+      alert('redirecting to /user by : rehydrate Error during token verification')
       navigate("/user");
     }
   };
@@ -66,7 +75,6 @@ const RehydrateUser = ({ children }) => {
     const token = localStorage.getItem("userToken"); // Get token from localStorage
     if (!token) {
       console.log("No token found in localStorage.");
-      navigate("/user");
       return;
     }else{
       verifyToken(token); // Call on component mount

@@ -65,7 +65,7 @@ export const StaffPage = () => {
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '35%' }}>
                   <Typography sx={{ fontWeight: '600', color: 'grey' }}>{service.applicants}</Typography>
-                  <IconButton sx={{color:'blue'}}><LaunchIcon sx={{height:18, width:18}} /></IconButton>
+                  <IconButton onClick={()=>{navigate(`/staff/service/${service._id}/applications`)}} sx={{color:'blue'}}><LaunchIcon sx={{height:18, width:18}} /></IconButton>
                 </Box>
               </Box>
               <Box className="applied date" sx={{ width: '15%', display: { xs: 'none', md: 'flex' } }}>

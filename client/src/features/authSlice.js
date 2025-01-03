@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { signIn, signUp, logOut } from "../services/auth";
 import { fetchUser } from "./userSlice"; // Import fetchUser from userSlice
-
+import { clearUser } from "./userSlice";
 const initialState = {
   token: null,
   userId: null,
@@ -35,7 +35,10 @@ export const registerUser = createAsyncThunk("auth/registerUser", async ({ email
 // Logout
 export const logoutUser = createAsyncThunk("auth/logoutUser", async (_, { dispatch }) => {
   await logOut();
+  localStorage.removeItem('userToken');
   dispatch(clearUser()); // Clear userSlice state
+  console.log(' running reload !')
+  window.location.reload()
 });
 
 const authSlice = createSlice({

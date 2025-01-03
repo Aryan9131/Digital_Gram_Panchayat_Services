@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/verifyToken': {
-        target: 'https://organic-space-parakeet-46p9wpp4wj6hj756-8000.app.github.dev',
+        target: 'http://localhost:8000',
         changeOrigin: true, // Ensures the CORS headers are handled correctly
         rewrite: (path) => path.replace(/^\/verifyToken/, ''),
       }

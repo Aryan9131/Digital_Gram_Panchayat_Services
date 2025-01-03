@@ -1,0 +1,15 @@
+.carousel .control-arrow {
+    display: none !important; /* Permanently hide the navigation arrows */
+  }
+.carousel .control-dots {
+    position: absolute; /* Allows you to move the dots */
+    bottom:-10px;
+}
+.carousel .control-dots .dot{
+    border:2px solid black
+}
+  
+.carousel .control-dots .dot.selected {
+    border: none;
+    background-color: #0b6cce; /* Fill the selected dot with blue color */
+  }

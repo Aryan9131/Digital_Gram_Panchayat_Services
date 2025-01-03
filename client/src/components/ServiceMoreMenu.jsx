@@ -5,9 +5,11 @@ import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { deleteService } from '../features/adminSlice';
+import { useDispatch } from 'react-redux';
 
 export function MoreMenu({id}) {
-  
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -17,7 +19,10 @@ export function MoreMenu({id}) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+  const handleDeleteService =()=>{
+    dispatch(deleteService({serviceId:id}))
+    navigate('/admin')
+  }
   return (
     <div>
       <IconButton
@@ -45,7 +50,7 @@ export function MoreMenu({id}) {
         }}
       >
         <MenuItem onClick={(e)=>{navigate(`/admin/update-service/${id}`)}}>Edit</MenuItem>
-        <MenuItem onClick={handleClose}>Delete</MenuItem>
+        <MenuItem onClick={handleDeleteService}>Delete</MenuItem>
       </Menu>
     </div>
   );

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchAllServices, createStaffAccount, createNewService, updateService, fetchService } from "../services/fireStore";
+import { fetchAllAdminServices, createStaffAccount, createNewService, updateService, fetchService,deleteServiceAndUpdateApplications } from "../services/fireStore";
 
 const initialState = {
   services: [],
@@ -8,9 +8,9 @@ const initialState = {
 };
 
 // Async thunk for fetching all users
-export const getAllServices = createAsyncThunk(`admin/getAllServices`, async (adminId) => {
+export const getAllAdminServices = createAsyncThunk(`admin/getAllAdminServices`, async (adminId) => {
   console.log('getServices called --> '+adminId)
-  const services = await fetchAllServices(adminId); // Fetch all users from Firestore
+  const services = await fetchAllAdminServices(adminId); // Fetch all users from Firestore
   return services;
 });
 
@@ -31,10 +31,11 @@ export const updateCurrentService= createAsyncThunk('admin/update-service', asyn
   return {_id : serviceId, data : serviceData};
 })
 
-export const fetchOneService= createAsyncThunk('admin/fetch-service', async ({serviceId})=>{
-  console.log('fetchOneService thunk called --> '+JSON.stringify(serviceId))
-   const service  = await fetchService(serviceId);
-  return service;
+export const deleteService = createAsyncThunk('admin/delete-service', async ({serviceId})=>{
+  console.log("deleteService called --> "+serviceId)
+   await deleteServiceAndUpdateApplications(serviceId);
+   console.log('Service and related applications processed successfully.');
+   return;
 })
 
 const adminSlice = createSlice({
@@ -43,15 +44,15 @@ const adminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getAllServices.pending, (state) => {
+      .addCase(getAllAdminServices.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(getAllServices.fulfilled, (state, action) => {
-        console.log('getAllServices fulfilled --> '+ JSON.stringify(action.payload))
+      .addCase(getAllAdminServices.fulfilled, (state, action) => {
+        console.log('getAllAdminServices fulfilled --> '+ JSON.stringify(action.payload))
         state.status = "succeeded";
         state.services = action.payload;
       })
-      .addCase(getAllServices.rejected, (state, action) => {
+      .addCase(getAllAdminServices.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
@@ -59,7 +60,7 @@ const adminSlice = createSlice({
         state.users.push(action.payload); // Add the new staff member to the list
       })
       .addCase(createService.fulfilled, (state, action) => {
-        state.services.push(action.payload); // Add the new service to the list
+         console.log("service created !")
       })
       .addCase(updateCurrentService.fulfilled, (state, action) => {
         console.log("update service fullflled -----> "+JSON.stringify(action.payload)); // Add the new service to the list
@@ -71,10 +72,9 @@ const adminSlice = createSlice({
             }
         })
       })
-      .addCase(fetchOneService.fulfilled, (state, action) => {
-        console.log("fetchOneService service fullflled -----> "+JSON.stringify(action.payload)); // Add the new service to the list
-        return action.payload
-      })
+      .addCase(deleteService.fulfilled, (state, action) => {
+        console.log("service deleteService !")
+     })
   },
 });
 export default adminSlice.reducer;

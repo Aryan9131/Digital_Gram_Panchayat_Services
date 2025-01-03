@@ -130,7 +130,7 @@ export const StaffFooter = () => {
                 <Box id='footerText' sx={{color: '#a2a7af', paddingBottom:'40px', display:'flex',alignItems:'flex-end',alignContent:'flex-end', flexDirection: 'column'}}>
                     <Typography sx={{fontSize:'12px'}}>Last reviewed and updated on : 29-Dec-2024</Typography>
                     <Typography sx={{fontSize:'12px',margin:'7px 0px'}}>This site is best viewed in 1024 * 768 resolution with latest version of Chrome, Firefox, Safari and Microsoft Edge.</Typography>
-                    <Typography sx={{fontSize:'12px'}}>Copyright @ Income Tax Department, Ministry of Finance, Government of India. All Rights Reserved.</Typography>
+                    <Typography sx={{fontSize:'12px'}}>Copyright @ Gram Panchayat , Government of India. All Rights Reserved.</Typography>
                 </Box>
             </Box>
         </Box>
