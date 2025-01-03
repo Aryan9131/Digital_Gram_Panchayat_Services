@@ -86,37 +86,37 @@ export function Navbar({ title, options }) {
     const staffNavbarServiceOptions = [
         {
             title: 'Previous',
-            url: '/services/previous-services'
+            url: '/'
         },
         {
             title: 'Deleted',
-            url: '/services/deleted-services'
+            url: '/'
         }
     ]
     const userNavbarServiceOptions = [
         {
             title: 'Medial',
-            url: '/user/services/medical'
+            url: '/'
         },
         {
             title: 'Health',
-            url: '/user/services/health'
+            url: '/'
         }
     ]
     const CompanyNavbarServiceOptions = [
         {
             title: 'About',
-            url: ''
+            url: '/'
         }
     ]
     const HelpNavbarServiceOptions = [
         {
             title: 'Contact',
-            url: ''
+            url: '/'
         },
         {
             title: 'Staff',
-            url: ''
+            url: '/'
         }
     ]
     const handleLogOut = () => {

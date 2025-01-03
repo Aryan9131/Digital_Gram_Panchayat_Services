@@ -107,7 +107,7 @@ export function MobileAccordion() {
                                 ?
                                 <>
                                     <Typography
-                                       onClick={()=>{navigate('/services/previous-services')}}
+                                       onClick={()=>{navigate('/')}}
                                         sx={{
                                             padding: '5px 0px',
                                             backgroundColor: 'skyblue',
@@ -126,7 +126,7 @@ export function MobileAccordion() {
                                     </Typography>
                                     <Divider />
                                     <Typography
-                                          onClick={()=>{navigate('/services/deleted-services')}}
+                                          onClick={()=>{navigate('/')}}
                                         sx={{
                                             padding: '5px 0px',
                                             backgroundColor: 'skyblue',
