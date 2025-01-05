@@ -11,7 +11,8 @@ export const fetchUserProfile = async (userId) => {
   }
 };
 
-export const updateUserProfile = async (userId, updates) => {
+export const updateProfile = async (userId, updates) => {
+  console.log(" updateProfile called with : "+JSON.stringify(updates))
   const userRef = doc(db, "users", userId);
   await updateDoc(userRef, updates);
 };

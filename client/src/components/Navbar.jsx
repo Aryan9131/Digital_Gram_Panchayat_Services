@@ -144,6 +144,9 @@ export function Navbar({ title, options }) {
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
+    const handleProfileMenuClose = () => {
+        setAnchorEl(null);
+    };
 
     const handleMobileMenuClose = () => {
         setMobileAnchorEl(null);
@@ -185,11 +188,11 @@ export function Navbar({ title, options }) {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+            <MenuItem onClick={()=>{navigate(`/profile`), handleProfileMenuClose()}}>Profile</MenuItem>
             {
                 !userDetails || userDetails?.profile == 'user'
                     ?
-                    <MenuItem onClick={() => { navigate(`/user/${userDetails?._id}/applications`) }}>My Applications</MenuItem>
+                    <MenuItem onClick={() => { navigate(`/user/${userDetails?._id}/applications`), handleProfileMenuClose() }}>My Applications</MenuItem>
                     :
                     null
             }
@@ -235,7 +238,7 @@ export function Navbar({ title, options }) {
                             </IconButton>
                             <p>Notifications</p>
                         </MenuItem>
-                        <MenuItem onClick={handleProfileMenuOpen}>
+                        <MenuItem onClick={()=>{navigate(`/profile`), handleProfileMenuClose()}}>
                             <IconButton
                                 size="large"
                                 aria-label="account of current user"

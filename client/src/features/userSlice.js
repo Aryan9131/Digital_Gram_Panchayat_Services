@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createApplication, fetchApplication, fetchUserApplications, fetchUserProfile } from "../services/fireStore";
+import { createApplication, fetchApplication, fetchUserApplications, fetchUserProfile , updateProfile } from "../services/fireStore";
 import { fetchAllServices } from "../services/fireStore";
 import { UserApplications } from "../components/UserApplications";
 const initialState = {
@@ -34,10 +34,18 @@ export const getApplication = createAsyncThunk('user/getApplication',async (appl
      const application = await fetchApplication(applicationId);
      return application;
 })
+
 export const getUserApplications = createAsyncThunk('user/getUserApplicatons',async (userId)=>{
   const applications = await fetchUserApplications(userId);
   return applications;
 })
+
+export const updateUserProfile =createAsyncThunk('user/updateUserProfile',async ({userId, updates})=>{
+  console.log(" updateUserProfile called with : "+JSON.stringify(updates))
+   await updateProfile(userId, updates);
+  return {_id:userId, ...updates};
+})
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -102,6 +110,11 @@ const userSlice = createSlice({
       .addCase(getUserApplications.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        console.log('updated user --> '+JSON.stringify(action.payload));
+        state.status = "succeeded";
+        state.userDetails = action.payload;
       });
   },
 });

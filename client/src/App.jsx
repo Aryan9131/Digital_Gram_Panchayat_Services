@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux'
 import { ApplicationDetail } from './components/ApplicationDetail'
 import { ServiceApplicationList } from './components/ServiceApplicationList'
 import { UserApplications } from './components/UserApplications'
+import { UserProfile } from './components/userProfile'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -30,6 +31,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/" element={<Layout />} >
+               <Route path="/profile" element={<UserProfile />} />    
             {/* Admin Routes */}
             <Route path="/admin">
               <Route path="" element={<AdminPage />} />
