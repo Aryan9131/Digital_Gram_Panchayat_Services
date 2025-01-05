@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/verifyToken': {
-        target: 'https://digital-gram-panchayat-services.vercel.app',
+        target: 'https://digital-gram-panchayat-services-backend.onrender.com',
         changeOrigin: true, // Ensures the CORS headers are handled correctly
         rewrite: (path) => path.replace(/^\/verifyToken/, ''),
       }
