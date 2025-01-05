@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux'
 import { ApplicationDetail } from './components/ApplicationDetail'
 import { ServiceApplicationList } from './components/ServiceApplicationList'
 import { UserApplications } from './components/UserApplications'
-import { UserProfile } from './components/userProfile'
+import { UserPage } from './components/UserPage'
 
 function App() {
   const [count, setCount] = useState(0)
