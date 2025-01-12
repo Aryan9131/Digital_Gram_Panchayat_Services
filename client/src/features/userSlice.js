@@ -3,8 +3,13 @@ import { createApplication, fetchApplication, fetchUserApplications, fetchUserPr
 import { fetchAllServices } from "../services/fireStore";
 import { UserApplications } from "../components/UserApplications";
 import { loadStripe } from '@stripe/stripe-js';
-const stripePublicKey = import.meta.env.VITE_STRIPE_PK;
-const stripe = await loadStripe(stripePublicKey);
+let stripe;
+
+const initializeStripe = async () => {
+  const stripePublicKey = import.meta.env.VITE_STRIPE_PK; // Ensure this is correctly set in your .env file
+  stripe = await loadStripe(stripePublicKey);
+};
+initializeStripe(); // Call the function to initialize Stripe
 
 const initialState = {
   paymentStatus:'pending',
