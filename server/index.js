@@ -29,7 +29,7 @@ admin.initializeApp({
 const db = admin.firestore(); // Use Firestore from Firebase Admin
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 // Enable CORS
 const corsOptions = {
