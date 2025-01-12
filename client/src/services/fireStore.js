@@ -146,16 +146,18 @@ export const updateService = async (serviceId, updates) => {
   }
 };
 
-export const createApplication = async (applicationData, applicants) => {
+export const createApplication = async ({applicationData, applicants}) => {
   try {
     const applicationRef = collection(db, "applications"); // Ensure 'db' is correctly initialized
     const newApplication = await addDoc(applicationRef, applicationData);
     //update service applicants number 
     const serviceDocRef = doc(db, "services", applicationData.serviceId);
-    await updateDoc(serviceDocRef, { applicants: applicants+1 });
+    const applicantCount = parseInt(applicants)+1;
+    console.log('applicants is : '+ applicantCount+ " type is : "+ typeof applicantCount)
+    await updateDoc(serviceDocRef, { applicants: applicantCount});
     return { _id: newApplication.id };
   } catch (error) {
-    console.error('Error creating new Application: ', error); // Log Firestore errors
+    alert('Error creating new Application: '); // Log Firestore errors
     throw error;
   }
 };

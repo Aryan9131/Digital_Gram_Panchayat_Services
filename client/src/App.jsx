@@ -19,6 +19,8 @@ import { ApplicationDetail } from './components/ApplicationDetail'
 import { ServiceApplicationList } from './components/ServiceApplicationList'
 import { UserApplications } from './components/UserApplications'
 import { UserProfile } from './components/UserProfile'
+import { PaymentSuccess } from './components/PaymentSuccess'
+import { PaymentFailed } from './components/PaymentFailed'
 function App() {
   const [count, setCount] = useState(0)
   const { userDetails } = useSelector((state) => state.user);
@@ -53,6 +55,8 @@ function App() {
               <Route path="service-details/:id" element={<ServiceDetails />} />
               <Route path="application/:id" element={<ApplicationDetail />} />
               <Route path=":id/applications" element={<UserApplications />} />
+              <Route path="payment-success" element={<PaymentSuccess />} />
+              <Route path="payment-failed" element={<PaymentFailed />} />
             </Route>
           </Route>
         </Routes>

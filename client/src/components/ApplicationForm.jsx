@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, Divider, TextField, Typography } from '@mui/material';
-import { createNewApplication } from '../features/userSlice';
+import { createNewApplication, submitApplication } from '../features/userSlice';
 import { useImgPreview } from '../hooks/handleImgPreview';
+import { makeApplicationPayment } from '../features/userSlice';
 
 export function ApplicationForm() {
+  const {paymentStatus} = useSelector((state)=>state.user)
   const { handleMediaChange, mediaUrl, clearMedia } = useImgPreview();
   const [fileDetails, setFileDetails] = useState({}); // State to store file details
   const [fileMediaUrlDetails, setFileMediaUrlDetails] = useState({}); // State to store file details
@@ -89,9 +91,8 @@ export function ApplicationForm() {
       status:'Applied',
       documents: uploadedFilesData, // Include file details
     };
-    dispatch(createNewApplication(ApplictionData, parseInt(currentService.applicants)))
+    dispatch(submitApplication({applicationData: ApplictionData , applicants: parseInt(currentService.applicants), userId:userDetails._id, price:currentService.fees, service:currentService.service, serviceId:currentService._id}))
   }
-  
   return (
     <Box sx={{ width: '100vw', height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Box id='applicationForm' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '15px 0px', border: '1px solid grey', width: '95%', height: '70vh', overflowY: 'auto', backgroundColor: 'whitesmoke' }}>
