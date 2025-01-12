@@ -43,6 +43,45 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  let event;
+  try {
+    console.log("Raw body received for webhook:", req.body.toString());
+    const sig = req.headers['stripe-signature'];
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error(`Webhook signature verification failed.`, err.message);
+    return res.status(400).send('Webhook Error');
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object; // Stripe Checkout session object
+    const paymentIntentId = session.payment_intent;
+
+    // Retrieve the Payment Intent for additional details
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    console.log("transactionId : "+session.id);
+    console.log("paymentIntentId : "+paymentIntentId);
+    console.log("paymentIntent : "+paymentIntent);
+    // Save transaction details to Firestore
+    const transactionDetails = {
+      userId: session.metadata.userId,
+      serviceId: session.metadata.serviceId,
+      serviceName: session.metadata.service,
+      price: session.amount_total / 100,
+      transactionId: session.id,
+      paymentIntentId: paymentIntentId,
+      status: 'succeeded',
+      createdAt: new Date(),
+    };
+    console.log("transactionDetails : "+transactionDetails)
+    await db.collection('transactions').add(transactionDetails);
+  }
+
+  res.status(200).json({ received: true });
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -112,42 +151,6 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 })
 
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  let event;
-  try {
-    const sig = req.headers['stripe-signature'];
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error(`Webhook signature verification failed.`, err.message);
-    return res.status(400).send('Webhook Error');
-  }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object; // Stripe Checkout session object
-    const paymentIntentId = session.payment_intent;
-
-    // Retrieve the Payment Intent for additional details
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    console.log("transactionId : "+session.id);
-    console.log("paymentIntentId : "+paymentIntentId);
-    console.log("paymentIntent : "+paymentIntent);
-    // Save transaction details to Firestore
-    const transactionDetails = {
-      userId: session.metadata.userId,
-      serviceId: session.metadata.serviceId,
-      serviceName: session.metadata.service,
-      price: session.amount_total / 100,
-      transactionId: session.id,
-      paymentIntentId: paymentIntentId,
-      status: 'succeeded',
-      createdAt: new Date(),
-    };
-    console.log("transactionDetails : "+transactionDetails)
-    await db.collection('transactions').add(transactionDetails);
-  }
-
-  res.status(200).json({ received: true });
-});
 // Start the Server
 app.listen(PORT, (error) => {
   if (error) {
