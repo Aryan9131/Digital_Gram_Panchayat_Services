@@ -91,7 +91,7 @@ export const submitApplication = createAsyncThunk(
         }
       });
       } catch (error) {
-        alert(`Error in submitApplication : ${JSON.stringify(error)}`);
+        alert(`Error in submitApplication : ${error}`);
         throw error; // Let the component handle this
       }
     }
@@ -112,7 +112,7 @@ export const makeApplicationPayment = createAsyncThunk('user/makePayment', async
       sessionId: session.id
     })
     if (result.error) {
-      alert(`Error while making payment : ${JSON.stringify(error)}`);
+      alert(`Error while making payment : ${error}`);
     }
     console.log(" result of payment : " + JSON.stringify(result));
     return (session.id);
