@@ -75,8 +75,10 @@ export const submitApplication = createAsyncThunk(
       const paymentRef = doc(db, 'transactions', transactionId);
       // Set up a real-time listener on the Firestore document
       const unsubscribe = onSnapshot(paymentRef, (doc) => {
+        console.log('onSnapshot running ---> ' + transactionId)
         if (doc.exists) {
           paymentData = doc.data();
+          console.log('onSnapshot running doc.exists --> '+JSON.stringify(paymentData))
           if (paymentData.status == 'failed') {
             unsubscribe();
             throw new Error('Payment failed');
