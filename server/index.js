@@ -85,7 +85,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object; // Stripe Checkout session object
     const paymentIntentId = session.payment_intent;
-
+    console.log('*** checkout.session.completed running ! ');
     // Retrieve the Payment Intent for additional details
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     console.log("transactionId : " + session.id);
@@ -164,10 +164,10 @@ app.post('/create-checkout-session', async (req, res) => {
       cancel_url: 'https://digital-gram-panchayat-services-frontend.vercel.app/user/payment-failed',
     });
     const transactionDetails = {
-      userId: session.metadata.userId,
-      serviceId: session.metadata.serviceId,
-      serviceName: session.metadata.service,
-      price: session.amount_total / 100,
+      userId: req.body.userId,
+      serviceId: req.body.serviceId,
+      serviceName: req.body.service,
+      price: req.body.price / 100,
       transactionId: session.id,
       status: 'pending',
       createdAt: new Date(),
