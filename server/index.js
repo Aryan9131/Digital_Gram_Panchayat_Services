@@ -44,6 +44,27 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+const getTransactionById = async (sessionId) => {
+  try {
+    const transactionsRef = db.collection('transactions');
+    const snapshot = await transactionsRef.where('transactionId', '==', sessionId).get();
+
+    if (snapshot.empty) {
+      console.log('No matching transaction found');
+      return null;
+    }
+
+    // Assuming the transaction is found, process the document
+    const transactionDoc = snapshot.docs[0];
+    console.log('Found transaction:', transactionDoc.data());
+
+    return transactionDoc;
+  } catch (error) {
+    console.error('Error getting transaction:', error);
+    throw error;
+  }
+};
+
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   let event;
   try {
@@ -52,6 +73,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
     console.error(`Webhook signature verification failed.`, err.message);
+    const UpdatedTransactionDetails = {
+      status: 'failed',
+      createdAt: new Date(),
+    };
+    const transactionRef = doc(db, "transactions", session.id);
+    await updateDoc(transactionRef, UpdatedTransactionDetails);
     return res.status(400).send('Webhook Error');
   }
 
@@ -61,22 +88,22 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
     // Retrieve the Payment Intent for additional details
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    console.log("transactionId : "+session.id);
-    console.log("paymentIntentId : "+paymentIntentId);
-    console.log("paymentIntent : "+paymentIntent);
+    console.log("transactionId : " + session.id);
+    console.log("paymentIntentId : " + paymentIntentId);
+    console.log("paymentIntent : " + paymentIntent);
     // Save transaction details to Firestore
-    const transactionDetails = {
-      userId: session.metadata.userId,
-      serviceId: session.metadata.serviceId,
-      serviceName: session.metadata.service,
-      price: session.amount_total / 100,
-      transactionId: session.id,
+    const UpdatedTransactionDetails = {
       paymentIntentId: paymentIntentId,
-      status: 'succeeded',
+      status: 'success',
       createdAt: new Date(),
     };
-    console.log("transactionDetails : "+transactionDetails)
-    await db.collection('transactions').add(transactionDetails);
+    console.log("UpdatedTransactionDetails : " + UpdatedTransactionDetails)
+    // Create a query for documents where the 'transactionId' field is equal to session.id
+    const transactionDoc = await getTransactionById(session.id);
+    if (transactionDoc) {
+      await transactionDoc.ref.update(UpdatedTransactionDetails);
+      console.log('Transaction updated successfully');
+    }   
   }
 
   res.status(200).json({ received: true });
@@ -135,16 +162,19 @@ app.post('/create-checkout-session', async (req, res) => {
       mode: 'payment',
       success_url: 'https://digital-gram-panchayat-services-frontend.vercel.app/user/payment-success',
       cancel_url: 'https://digital-gram-panchayat-services-frontend.vercel.app/user/payment-failed',
-      metadata: {
-        userId: req.body.userId,
-        serviceId: req.body.serviceId,
-        service: req.body.service,
-      }
     });
-    const paymentIntentId = session.payment_intent;
-    console.log("***** paymentIntentId result : "+paymentIntentId)
-    console.log("payment result : "+JSON.stringify(session))
-    return res.status(200).json({id : session.id, paymentIntentId : paymentIntentId});
+    const transactionDetails = {
+      userId: session.metadata.userId,
+      serviceId: session.metadata.serviceId,
+      serviceName: session.metadata.service,
+      price: session.amount_total / 100,
+      transactionId: session.id,
+      status: 'pending',
+      createdAt: new Date(),
+    };
+    await db.collection('transactions').add(transactionDetails);
+    console.log("payment result : " + JSON.stringify(session))
+    return res.json({ id: session.id });
   } catch (error) {
     console.log('Error while making payment --> ' + JSON.stringify(error));
     return res.json({ id: null })

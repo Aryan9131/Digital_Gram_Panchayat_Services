@@ -12,7 +12,7 @@ const initializeStripe = async () => {
 initializeStripe(); // Call the function to initialize Stripe
 
 const initialState = {
-  paymentStatus:'pending',
+  paymentStatus: 'pending',
   services: [],
   searchQuery: "",
   currentApplication: null,
@@ -36,7 +36,7 @@ export const getAllServices = createAsyncThunk(`admin/getAllServices`, async () 
 
 // Create Application
 export const createNewApplication = createAsyncThunk("user/createNewApplication", async (applicationData, applicants) => {
-  console.log('createNewApplication called : '+ applicationData);
+  console.log('createNewApplication called : ' + applicationData);
   const application = await createApplication(applicationData, applicants); // Fetch data from Firestore
   return application;
 });
@@ -63,30 +63,38 @@ export const submitApplication = createAsyncThunk(
       console.log("submitApplication started");
 
       // Step 1: Make Payment
-      const paymentResult = await dispatch(
+     const transactionId= await dispatch(
         makeApplicationPayment({ userId, price, service, serviceId })
       ).unwrap();
-      
+
       // Step 2: Check Payment Status
-      if (paymentResult.status !== 'success') {
-        throw new Error('Payment failed');
+      const paymentRef = db.collection('transactions').doc(transactionId);
+      // Set up a real-time listener on the Firestore document
+      const unsubscribe = paymentRef.onSnapshot((doc) => {
+        if (doc.exists) {
+          paymentData = doc.data();
+          if (paymentData.status == 'failed') {
+            throw new Error('Payment failed');
+          }
+          if (paymentData.status == 'success') {
+            console.log("Payment successful, proceeding to create application");
+            console.log("applicationData " + JSON.stringify(applicationData))
+            console.log("applicants " + JSON.stringify(applicants))
+
+            // Step 3: Create Application
+             dispatch(
+              createNewApplication({ applicationData: applicationData, applicants: applicants })
+            ).unwrap();
+            console.log("Application created successfully");
+          }
+          unsubscribe();
+        }
+      });
+      } catch (error) {
+        alert(`Error in submitApplication`);
+        throw error; // Let the component handle this
       }
-
-      console.log("Payment successful, proceeding to create application");
-      console.log("applicationData " + JSON.stringify(applicationData))
-      console.log("applicants " + JSON.stringify(applicants))
-
-      // Step 3: Create Application
-       await dispatch(
-        createNewApplication({applicationData : applicationData, applicants : applicants})
-      ).unwrap();
-
-      console.log("Application created successfully");
-    } catch (error) {
-      alert(`Error in submitApplication`);
-      throw error; // Let the component handle this
     }
-  }
 );
 
 export const makeApplicationPayment = createAsyncThunk('user/makePayment', async ({ userId, price, service, serviceId }) => {
@@ -106,8 +114,8 @@ export const makeApplicationPayment = createAsyncThunk('user/makePayment', async
     if (result.error) {
       alert(`Error while making payment`);
     }
-    console.log(" result of payment : "+ JSON.stringify(result));
-    return {status :'success'}
+    console.log(" result of payment : " + JSON.stringify(result));
+    return (session.id);
   } catch (error) {
     alert(`Error while making payment(catch block)`);
   }
@@ -189,12 +197,12 @@ const userSlice = createSlice({
       .addCase(makeApplicationPayment.fulfilled, (state, action) => {
         console.log('makeApplicationPayment builder --> ' + JSON.stringify(action.payload));
         state.status = "succeeded";
-        return {status:'success'}
+        return { status: 'success' }
       })
       .addCase(makeApplicationPayment.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
-        return {status:'failed'}
+        return { status: 'failed' }
       })
   },
 });

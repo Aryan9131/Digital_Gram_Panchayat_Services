@@ -31,7 +31,6 @@ export const fetchPendingApplications = async () => {
 };
 
 export const updateCurrentApplication = async ({applicationId, status, reason}) => {
-
   const applicationRef = doc(db, "applications", applicationId);
   await updateDoc(applicationRef, {status : status, reason:reason});
 };
