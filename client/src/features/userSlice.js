@@ -1,5 +1,5 @@
 // Import the required Firestore functions
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, updateDoc, addDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createApplication, fetchApplication, fetchUserApplications, fetchUserProfile, updateProfile } from "../services/fireStore";
@@ -72,9 +72,9 @@ export const submitApplication = createAsyncThunk(
       ).unwrap();
 
       // Step 2: Check Payment Status
-      const paymentRef = db.collection('transactions').doc(transactionId);
+      const paymentRef = doc(db, 'transactions', transactionId);
       // Set up a real-time listener on the Firestore document
-      const unsubscribe = paymentRef.onSnapshot((doc) => {
+      const unsubscribe = onSnapshot(paymentRef, (doc) => {
         if (doc.exists) {
           paymentData = doc.data();
           if (paymentData.status == 'failed') {
