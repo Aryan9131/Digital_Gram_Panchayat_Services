@@ -176,7 +176,7 @@ app.post('/create-checkout-session', async (req, res) => {
     console.log("payment result : " + JSON.stringify(session))
     return res.json({ id: session.id });
   } catch (error) {
-    console.log('Error while making payment --> ' + JSON.stringify(error));
+    console.log('Error while making payment --> ' + error);
     return res.json({ id: null })
   }
 })

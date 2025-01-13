@@ -91,7 +91,7 @@ export const submitApplication = createAsyncThunk(
         }
       });
       } catch (error) {
-        alert(`Error in submitApplication`);
+        alert(`Error in submitApplication : ${JSON.stringify(error)}`);
         throw error; // Let the component handle this
       }
     }
@@ -112,12 +112,12 @@ export const makeApplicationPayment = createAsyncThunk('user/makePayment', async
       sessionId: session.id
     })
     if (result.error) {
-      alert(`Error while making payment`);
+      alert(`Error while making payment : ${JSON.stringify(error)}`);
     }
     console.log(" result of payment : " + JSON.stringify(result));
     return (session.id);
   } catch (error) {
-    alert(`Error while making payment(catch block)`);
+    alert(`Error while making payment(catch block) :${error}`);
   }
 })
 const userSlice = createSlice({
