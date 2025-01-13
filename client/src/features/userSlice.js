@@ -1,8 +1,12 @@
+// Import the required Firestore functions
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, updateDoc, addDoc } from "firebase/firestore";
+import { db } from "../services/firebase";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createApplication, fetchApplication, fetchUserApplications, fetchUserProfile, updateProfile } from "../services/fireStore";
 import { fetchAllServices } from "../services/fireStore";
 import { UserApplications } from "../components/UserApplications";
 import { loadStripe } from '@stripe/stripe-js';
+
 let stripe;
 
 const initializeStripe = async () => {
