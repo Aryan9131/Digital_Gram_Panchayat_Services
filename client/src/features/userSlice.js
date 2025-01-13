@@ -78,6 +78,7 @@ export const submitApplication = createAsyncThunk(
         if (doc.exists) {
           paymentData = doc.data();
           if (paymentData.status == 'failed') {
+            unsubscribe();
             throw new Error('Payment failed');
           }
           if (paymentData.status == 'success') {
@@ -90,8 +91,8 @@ export const submitApplication = createAsyncThunk(
               createNewApplication({ applicationData: applicationData, applicants: applicants })
             ).unwrap();
             console.log("Application created successfully");
+            unsubscribe();
           }
-          unsubscribe();
         }
       });
       } catch (error) {
