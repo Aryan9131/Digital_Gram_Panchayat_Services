@@ -12,6 +12,7 @@ The E-Services for Gram Panchayat project aims to streamline and digitize the de
 - **Login**: Securely log in to the system.
 - **Search Services**: Browse available Gram Panchayat services.
 - **Apply Services**: Submit applications for services online.
+- **Make Payment**: Make payment using secure stripe payment system.
 - **Profile Application **: Track the status of submitted applications.
 - **Logout**: Log out from the system.
 
@@ -46,8 +47,10 @@ The E-Services for Gram Panchayat project aims to streamline and digitize the de
 
 ### **Backend**
 - **Firebase**: For database, authentication, and backend services.
-
+- **Nodejs**: For Payment related tasks.
+  
 ### **Other Tools**
+- **Stripe**: For Payment System integration.
 - **Cloudinary**: For document upload and storage.
 - **CSS/Responsive Design**: For a user-friendly interface.
 
