@@ -1,7 +1,7 @@
 # E-Services for Gram Panchayat
 
 ## Overview
-The E-Services for Gram Panchayat project aims to streamline and digitize the delivery of citizen services in villages by creating a web application that facilitates online applications, real-time tracking, and efficient management of Gram Panchayat services. This system empowers citizens to access government services conveniently while enabling staff and officers to manage applications effectively.
+The E-Services for Gram Panchayat project aims to streamline and digitize the delivery of citizen services in villages by creating a web application that facilitates online applications, real-time tracking, Payments and efficient management of Gram Panchayat services. This system empowers citizens to access government services conveniently while enabling staff and officers to manage applications effectively.
 
 ---
 
