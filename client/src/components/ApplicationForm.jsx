@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, Divider, TextField, Typography } from '@mui/material';
-import { createNewApplication, submitApplication } from '../features/userSlice';
 import { useImgPreview } from '../hooks/handleImgPreview';
 import { makeApplicationPayment } from '../features/userSlice';
 
@@ -91,7 +90,7 @@ export function ApplicationForm() {
       status:'Applied',
       documents: uploadedFilesData, // Include file details
     };
-    dispatch(submitApplication({applicationData: ApplictionData , applicants: parseInt(currentService.applicants), userId:userDetails._id, price:currentService.fees, service:currentService.service, serviceId:currentService._id}))
+    dispatch(makeApplicationPayment({applicationData: ApplictionData , applicants: parseInt(currentService.applicants), userId:userDetails._id, price:currentService.fees, service:currentService.service, serviceId:currentService._id}))
   }
   return (
     <Box sx={{ width: '100vw', height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

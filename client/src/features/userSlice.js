@@ -40,15 +40,15 @@ export const getAllServices = createAsyncThunk(`admin/getAllServices`, async () 
 
 // Create Application
 export const createNewApplication = createAsyncThunk("user/createNewApplication", async (applicationData, applicants) => {
-  console.log('createNewApplication called : ' + applicationData);
-  const application = await createApplication(applicationData, applicants); // Fetch data from Firestore
+  alert(`${applicants} : createNewApplication called :${applicationData} `);
+  const application = await createApplication({applicationData :applicationData, applicants:applicants}); // Fetch data from Firestore
   return application;
 });
 
 export const getApplication = createAsyncThunk('user/getApplication', async (applicationId) => {
   const application = await fetchApplication(applicationId);
   return application;
-})
+});
 
 export const getUserApplications = createAsyncThunk('user/getUserApplicatons', async (userId) => {
   const applications = await fetchUserApplications(userId);
@@ -60,73 +60,57 @@ export const updateUserProfile = createAsyncThunk('user/updateUserProfile', asyn
   await updateProfile(userId, updates);
   return { _id: userId, ...updates };
 })
-export const submitApplication = createAsyncThunk(
-  'user/submitApplication',
-  async ({ applicationData, applicants, userId, price, service, serviceId }, { dispatch }) => {
+
+export const makeApplicationPayment = createAsyncThunk(
+  'user/makePayment',
+  async ({ applicationData, applicants, userId, price, service, serviceId }, thunkAPI) => {
+    const { dispatch } = thunkAPI; // Access dispatch from thunkAPI
     try {
-      console.log("submitApplication started");
+      console.log(
+        'makeApplicationPayment called with : ' +
+          JSON.stringify({ applicationData, applicants, userId, price, service, serviceId })
+      );
 
-      // Step 1: Make Payment
-     const transactionId= await dispatch(
-        makeApplicationPayment({ userId, price, service, serviceId })
-      ).unwrap();
-
-      // Step 2: Check Payment Status
-      const paymentRef = doc(db, 'transactions', transactionId);
-      // Set up a real-time listener on the Firestore document
-      const unsubscribe = onSnapshot(paymentRef, (doc) => {
-        console.log('onSnapshot running ---> ' + transactionId)
-        if (doc.exists) {
-          paymentData = doc.data();
-          console.log('onSnapshot running doc.exists --> '+JSON.stringify(paymentData))
-          if (paymentData.status == 'failed') {
-            unsubscribe();
-            throw new Error('Payment failed');
-          }
-          if (paymentData.status == 'success') {
-            console.log("Payment successful, proceeding to create application");
-            console.log("applicationData " + JSON.stringify(applicationData))
-            console.log("applicants " + JSON.stringify(applicants))
-
-            // Step 3: Create Application
-             dispatch(
-              createNewApplication({ applicationData: applicationData, applicants: applicants })
-            ).unwrap();
-            console.log("Application created successfully");
-            unsubscribe();
-          }
+      // Make a POST request to the backend
+      const response = await fetch(
+        'https://fantastic-tribble-7wj4pjjq7q6fx94j-8000.app.github.dev/create-checkout-session',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, price, serviceId, service }),
         }
-      });
-      } catch (error) {
-        alert(`Error in submitApplication : ${error}`);
-        throw error; // Let the component handle this
+      );
+
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
+      const session = await response.json();
+
+      // Redirect to Stripe Checkout
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
+
+      if (result.error) {
+        console.error(`Error while making payment: ${result.error.message}`);
+        throw new Error(result.error.message);
+      }
+
+      // Dispatch your action after successful payment
+      dispatch(createNewApplication({ applicationData, applicants }));
+
+      return session.id;
+    } catch (error) {
+      console.error(`Error while making payment (catch block): ${error.message}`);
+      return thunkAPI.rejectWithValue(error.message); // Use rejectWithValue to handle errors
     }
+  }
 );
 
-export const makeApplicationPayment = createAsyncThunk('user/makePayment', async ({ userId, price, service, serviceId }) => {
-  try {
-    console.log(" makeApplicationPayment called with : " + JSON.stringify({ userId, price, service, serviceId }))
-    const response = await fetch('https://digital-gram-panchayat-services-backend.onrender.com/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify({ userId, price, serviceId, service })
-    });
-    const session = await response.json();
-    const result = stripe.redirectToCheckout({
-      sessionId: session.id
-    })
-    if (result.error) {
-      alert(`Error while making payment : ${error}`);
-    }
-    console.log(" result of payment : " + JSON.stringify(result));
-    return (session.id);
-  } catch (error) {
-    alert(`Error while making payment(catch block) :${error}`);
-  }
-})
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -173,6 +157,7 @@ const userSlice = createSlice({
         state.currentApplicationId = action.payload._id
       })
       .addCase(createNewApplication.rejected, (state, action) => {
+        console.log(`Error in createNewApplication  : ${action.error.message}`)
         state.status = "failed";
         state.error = action.error.message;
       })
@@ -196,10 +181,6 @@ const userSlice = createSlice({
         console.log('updated user --> ' + JSON.stringify(action.payload));
         state.status = "succeeded";
         state.userDetails = action.payload;
-      })
-      .addCase(submitApplication.fulfilled, (state, action) => {
-        console.log('submitApplication builder --> ' + JSON.stringify(action.payload));
-        state.status = "succeeded";
       })
       .addCase(makeApplicationPayment.fulfilled, (state, action) => {
         console.log('makeApplicationPayment builder --> ' + JSON.stringify(action.payload));
